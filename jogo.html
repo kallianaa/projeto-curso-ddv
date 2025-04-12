@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Kanban - Protótipo de Jogo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark {
+      background: #121212;
+      color: #f0f0f0;
+    }
+    h1 {
+      text-align: center;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .board {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+    }
+    .column {
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px;
+      width: 250px;
+      min-width: 250px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: background 0.3s;
+    }
+    body.dark .column {
+      background: #1e1e1e;
+    }
+    .column h2 {
+      text-align: center;
+      font-size: 18px;
+      background: #eee;
+      border-radius: 5px;
+      padding: 5px;
+    }
+    body.dark .column h2 {
+      background: #333;
+    }
+    .card {
+      background: #e3f2fd;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+      cursor: grab;
+      position: relative;
+    }
+    body.dark .card {
+      background: #2a2a2a;
+      color: #f0f0f0;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #fff;
+      margin-top: 5px;
+    }
+    .design { background: #64b5f6; }
+    .code { background: #81c784; }
+    .art { background: #ba68c8; }
+    .audio { background: #ffd54f; color: #000; }
+    .export-btn { margin: 0 5px; }
+    .remove-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #f44336;
+      border: none;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 20px;
+      text-align: center;
+    }
+    .prazo-alerta {
+      color: red;
+      font-weight: bold;
+    }
+    .comment-box {
+      margin-top: 10px;
+    }
+    .comment-box textarea {
+      width: 100%;
+      font-size: 12px;
+      border-radius: 4px;
+      resize: vertical;
+    }
+  </style>
+</head>
+<body onload="inicializarTema()">
+  
+
+  <div id="mainContent">
+  <h1>Kanban - Protótipo de Jogo Digital</h1>
+  <div class="controls">
+    <button onclick="criarCartao()">+ Novo Cartão</button>
+    <button class="export-btn" onclick="exportarJSON()">Exportar JSON</button>
+    <input type="file" id="importFile" accept="application/json" onchange="importarJSON(event)">
+    <button onclick="toggleDarkMode()">🌙 Modo Escuro</button>
+  </div>
+  <div class="board" id="kanbanBoard">
+    <div class="column" data-status="Backlog" ondrop="drop(event)" ondragover="allowDrop(event)"><h2>Backlog</h2></div>
+    <div class="column" data-status="A Fazer" ondrop="drop(event)" ondragover="allowDrop(event)"><h2>A Fazer</h2></div>
+    <div class="column" data-status="Em Progresso" ondrop="drop(event)" ondragover="allowDrop(event)"><h2>Em Progresso</h2></div>
+    <div class="column" data-status="Revisão" ondrop="drop(event)" ondragover="allowDrop(event)"><h2>Revisão</h2></div>
+    <div class="column" data-status="Concluído" ondrop="drop(event)" ondragover="allowDrop(event)"><h2>Concluído</h2></div>
+  </div>
+  <script>
+    let cardCounter = 1;
+    let currentUser = "anon";
+
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+    function drop(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
+      const card = document.getElementById(data);
+      const column = ev.target.closest(".column");
+      column.appendChild(card);
+      salvarLocal();
+    }
+
+    function criarBotaoRemover(card) {
+      const btn = document.createElement("button");
+      btn.className = "remove-btn";
+      btn.innerHTML = "×";
+      btn.onclick = () => { card.remove(); salvarLocal(); };
+      card.appendChild(btn);
+    }
+
+    function diasRestantes(dataFinal) {
+      const hoje = new Date();
+      const prazo = new Date(dataFinal);
+      const diff = prazo - hoje;
+      return Math.ceil(diff / (1000 * 60 * 60 * 24));
+    }
+
+    function gerarPrazoHTML(prazoStr) {
+      const dias = diasRestantes(prazoStr);
+      const alerta = dias <= 5 ? 'prazo-alerta' : '';
+      return `<small class="${alerta}"><strong>Prazo:</strong> ${dias} dia(s) restantes</small>`;
+    }
+
+    function criarCartao() {
+      
+      const descricao = prompt("Descreva a tarefa:");
+      if (!descricao) return;
+      const tag = prompt("Informe a área (design, code, art, audio):").toLowerCase();
+      const prazoInput = prompt("Informe o prazo (dd-mm-aaaa):");
+      const [dia, mes, ano] = prazoInput.split("-");
+      if (!dia || !mes || !ano) return alert("Formato de data inválido. Use dd-mm-aaaa");
+
+      const prazoFormatado = `${ano}-${mes}-${dia}`;
+      if (isNaN(Date.parse(prazoFormatado))) return alert("Data inválida");
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.draggable = true;
+      card.id = `card${cardCounter++}`;
+      card.ondragstart = drag;
+      card.innerHTML = `
+        ${descricao}<br>
+        ${gerarPrazoHTML(prazoFormatado)}<br>
+        <span class="tag ${tag}">${tag.charAt(0).toUpperCase() + tag.slice(1)}</span>
+        <span style="display:none" class="prazo-data">${prazoFormatado}</span>
+        <div class="comment-box">
+          <textarea placeholder="Comentários..."></textarea>
+        </div>
+      `;
+      criarBotaoRemover(card);
+      document.querySelector(".column").appendChild(card);
+      salvarLocal();
+    }
+
+    function exportarJSON() {
+      const board = capturarEstado();
+      const blob = new Blob([JSON.stringify(board, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `kanban_${currentUser || "projeto"}.json`;
+      a.click();
+    }
+
+    function importarJSON(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = e => restaurarEstado(JSON.parse(e.target.result));
+      reader.readAsText(file);
+    }
+
+    function capturarEstado() {
+      return [...document.querySelectorAll(".column")].map(col => {
+        return {
+          status: col.dataset.status,
+          cards: [...col.querySelectorAll(".card")].map(card => {
+            const clone = card.cloneNode(true);
+            const btn = clone.querySelector(".remove-btn");
+            if (btn) btn.remove();
+            return { id: card.id, content: clone.innerHTML };
+          })
+        };
+      });
+    }
+
+    function restaurarEstado(data) {
+      document.querySelectorAll(".column").forEach(c => c.innerHTML = `<h2>${c.dataset.status}</h2>`);
+      data.forEach(colData => {
+        const col = [...document.querySelectorAll(".column")].find(c => c.dataset.status === colData.status);
+        colData.cards.forEach(c => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.id = c.id;
+          card.draggable = true;
+          card.ondragstart = drag;
+          card.innerHTML = c.content;
+          criarBotaoRemover(card);
+          atualizarPrazo(card);
+          col.appendChild(card);
+        });
+      });
+      salvarLocal();
+    }
+
+    function salvarLocal() {
+      if (currentUser) {
+        localStorage.setItem(`kanban_${currentUser}`, JSON.stringify(capturarEstado()));
+      }
+    }
+
+    function carregarLocal() {
+      if (currentUser) {
+        const dados = localStorage.getItem(`kanban_${currentUser}`);
+        if (dados) restaurarEstado(JSON.parse(dados));
+      }
+    }
+
+    function atualizarPrazo(card) {
+      const spanData = card.querySelector(".prazo-data");
+      if (spanData) {
+        const dataStr = spanData.textContent;
+        const small = card.querySelector("small");
+        if (small) small.outerHTML = gerarPrazoHTML(dataStr);
+      }
+    }
+
+    function toggleDarkMode() {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("modoEscuro", document.body.classList.contains("dark"));
+}
+
+    setInterval(() => {
+  document.querySelectorAll(".card").forEach(card => atualizarPrazo(card));
+}, 10000);
+
+function inicializarTema() {
+  const escuro = localStorage.getItem("modoEscuro") === "true";
+  if (escuro) document.body.classList.add("dark");
+  carregarLocal();
+}
+  </script>
+  </div>
+</body>
+</html>
