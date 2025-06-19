@@ -56,7 +56,7 @@ const produtos = [
 
 //FILTER
 const produtosMenor50 = produtos.filter((produto) => {
-    return produto.preco < 50; //pega os numeros pares
+    return produto.preco < 50; //pega os numeros menores que 50
 })
 console.log(produtosMenor50);
 
