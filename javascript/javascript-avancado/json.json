@@ -1,0 +1,10 @@
+{
+  "nome": "Nala",
+  "idade": 5,
+  "moraSozinho": true,
+  "hobbies": ["Correr", "brincar"],
+  "endereco": {
+    "rua": "Rua Brasil",
+    "bairro": "Dos Silva"
+  }
+}
