@@ -6,10 +6,10 @@ const numeros = [1, 2, 3, 4, 5];
 
 
 // const arrayDobrado = numeros.map((elemento) => {
-//     return elemento *2
+//     return elemento * 2
 // }) é a mesma coisa que a linha de baixo
 
-const arrayDobrado = numeros.map(elemento => elemento *2)
+const arrayDobrado = numeros.map(elemento => elemento * 2)
 // console.log(arrayDobrado);
 
 // const arrayFiltrado = numeros.filter((elemento) => { //se for falso ele nao entra no array
