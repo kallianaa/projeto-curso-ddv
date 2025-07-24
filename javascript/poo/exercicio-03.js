@@ -5,6 +5,7 @@ console.log("EXERCÍCIO 1")
 
 
 
+
 console.log("************************************************")
 console.log("EXERCÍCIO 2")
 //Implemente um sistema de herança com as classes Funcionario, Gerente e Diretor.
@@ -12,10 +13,12 @@ console.log("EXERCÍCIO 2")
 
 
 
+
 console.log("************************************************")
 console.log("EXERCÍCIO 3")
 //Crie uma classe Cliente que possui um método para calcular o valor total de compras,
 // com base em uma lista de produtos comprados.
+
 
 
 
