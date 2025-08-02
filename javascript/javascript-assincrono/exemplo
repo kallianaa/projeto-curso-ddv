@@ -1,0 +1,35 @@
+JavaScript Assíncrono: Primeiros Passos
+Bem-vindo ao módulo de JavaScript assíncrono!
+
+>>O que é Assincronismo?
+O assincronismo é a execução de tarefas assíncronas. Isso significa que ele permite
+que tarefas que demoram a ser concluídas sejam executadas em paralelo,
+enquanto o programa continua rodando outras partes. É o famoso 'rodar em background' ou 'rodar no plano de fundo'.
+Imagine uma aplicação que realiza várias operações, e algumas dessas operações são demoradas,
+como requisições a uma API ou leitura de arquivos.  Essas tarefas podem ser colocadas em um processamento assíncrono,
+permitindo que a aplicação continue funcionando sem interrupções.
+
+
+>>Síncrono vs. Assíncrono
+Síncrono: Executa as tarefas uma de cada vez. Quando uma tarefa está sendo executada,
+ela bloqueia a execução da próxima até que seja concluída.
+Assíncrono: Permite que as tarefas sejam executadas em paralelo.
+Uma tarefa pode demorar mais para ser concluída, mas não bloqueia totalmente a execução das outras.
+
+>>Como o JavaScript Implementa o Assincronismo?
+É importante saber que o JavaScript é single-threaded, ou seja, ele roda em uma única thread ou fio de execução.
+Uma thread é a unidade responsável pela execução de uma instrução por vez.
+Processadores modernos têm várias threads e conseguem executar várias tarefas ao mesmo tempo.
+Mas, como o JavaScript é single-threaded, como ele lida com tarefas em paralelo?
+
+>>O Event Loop
+O JavaScript utiliza o Event Loop para lidar com o assincronismo.
+O Event Loop é uma fila onde as operações lentas (leitura de arquivos, requisições, etc.) são registradas.
+Juntamente com a operação, uma callback (uma função que será executada
+quando a operação for concluída) também é registrada. O Event Loop verifica
+continuamente quais operações podem ser executadas, permitindo que elas ocorram em paralelo.
+Após a conclusão de uma operação, a função de callback é chamada para sinalizar que a tarefa foi concluída.
+
+Conclusão - Em resumo:
+Assíncrono: Tarefas rodam em paralelo.
+Síncrono: Tarefas rodam uma por vez.
