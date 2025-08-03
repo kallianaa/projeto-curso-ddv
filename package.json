@@ -1,0 +1,25 @@
+{
+  "name": "projeto-curso-ddv",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/kallianaa/projeto-curso-ddv#readme",
+  "bugs": {
+    "url": "https://github.com/kallianaa/projeto-curso-ddv/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kallianaa/projeto-curso-ddv.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "dayjs": "^1.11.13",
+    "express": "^5.1.0"
+  }
+}
